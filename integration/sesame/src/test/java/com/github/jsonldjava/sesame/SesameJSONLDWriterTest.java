@@ -9,6 +9,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,11 +21,13 @@ import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.rio.ParserConfig;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.RDFWriterTest;
+import org.openrdf.rio.Rio;
 import org.openrdf.rio.WriterConfig;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.rio.helpers.JSONLDMode;
@@ -63,14 +67,13 @@ public class SesameJSONLDWriterTest extends RDFWriterTest {
     @Ignore("Sesame-2.7 does not support RDF-1.1, so string/langString literals cause this to fail.")
     public void testRoundTripPreserveBNodeIds() throws Exception {
     }
-    
+
     @Test
     @Override
     @Ignore("TODO: Determine why this test is breaking")
-    public void testIllegalPrefix()
-        throws RDFHandlerException, RDFParseException, IOException {
+    public void testIllegalPrefix() throws RDFHandlerException, RDFParseException, IOException {
     }
-    
+
     @Test
     public void testRoundTripNamespaces() throws Exception {
         String exNs = "http://example.org/";
@@ -109,5 +112,33 @@ public class SesameJSONLDWriterTest extends RDFWriterTest {
                     model.getNamespaces().size() >= 1);
             assertEquals(exNs, model.getNamespace("ex").getName());
         }
+    }
+
+    /**
+     * Test for round-tripping of a TriG document which contains references into
+     * a list using a blank node
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testListAcrossGraphsRoundTrip() throws Exception {
+        Model parse = Rio.parse(this.getClass()
+                .getResourceAsStream("/custom/blanknodelist-in.trig"), "", RDFFormat.TRIG);
+        assertEquals(6, parse.size());
+        assertEquals(4, parse.subjects().size());
+        assertEquals(4, parse.predicates().size());
+        assertEquals(5, parse.objects().size());
+
+        StringWriter writer = new StringWriter();
+        Rio.write(parse, writer, RDFFormat.JSONLD);
+
+        String jsonldString = writer.toString();
+
+        Model reparsed = Rio.parse(new StringReader(jsonldString), "", RDFFormat.JSONLD);
+        assertEquals(6, reparsed.size());
+        assertEquals(4, reparsed.subjects().size());
+        assertEquals(4, reparsed.predicates().size());
+        // TODO: This should be 5, but is 6 due to errors serialising the JSONLD
+        assertEquals(5, reparsed.objects().size());
     }
 }

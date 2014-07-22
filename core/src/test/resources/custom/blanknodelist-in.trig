@@ -1,0 +1,21 @@
+# Lists across graphs
+PREFIX :        <http://www.example.com/>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+
+:G {
+  # Written in short form it would be:
+  # :z :q ("cell-A" "cell-B")
+
+  :z :q _:z0 .
+
+  _:z0   rdf:first "cell-A" .
+  _:z0   rdf:rest  _:z1 .
+
+  _:z1   rdf:first "cell-B" .
+  _:z1   rdf:rest rdf:nil .
+}
+
+:G1 {
+   # This references part of the list.
+   :x :p _:z1 .
+}
