@@ -125,6 +125,7 @@ public class SesameJSONLDWriterTest extends RDFWriterTest {
         Model parse = Rio.parse(this.getClass()
                 .getResourceAsStream("/custom/blanknodelist-in.trig"), "", RDFFormat.TRIG);
         assertEquals(6, parse.size());
+        assertEquals(2, parse.contexts().size());
         assertEquals(4, parse.subjects().size());
         assertEquals(4, parse.predicates().size());
         assertEquals(5, parse.objects().size());
@@ -136,6 +137,7 @@ public class SesameJSONLDWriterTest extends RDFWriterTest {
 
         Model reparsed = Rio.parse(new StringReader(jsonldString), "", RDFFormat.JSONLD);
         assertEquals(6, reparsed.size());
+        assertEquals(2, reparsed.contexts().size());
         assertEquals(4, reparsed.subjects().size());
         assertEquals(4, reparsed.predicates().size());
         // TODO: This should be 5, but is 6 due to errors serialising the JSONLD
