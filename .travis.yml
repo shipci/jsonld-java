@@ -3,7 +3,4 @@ jdk:
   - openjdk7
   - oraclejdk7
   - oraclejdk8
-notifications:
-  email:
-    - ansell.peter@gmail.com
-    - tristan.king@gmail.com
+[shippable new build status flow]
